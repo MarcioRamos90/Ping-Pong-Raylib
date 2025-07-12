@@ -1,6 +1,6 @@
 # A simple Ping Pong Game
 
-The intentions here is to practice my c/c++ skills (that are vary low at the moment)
+The intentions here is to practice my c/c++ skills (that are very bad at the moment)
 
 ![](docs/image.png)
 

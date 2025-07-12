@@ -18,6 +18,8 @@ If you are using g++, then the command is something like:
 g++ main.cpp -o .\build\main -lraylib -lgdi32 -lwinmm.
 ```
 
+If you are using other compiler, then you know, something similar with that (remember to look raylib docs if have problem).
+
 ## Roadmap
 
 - Create a funcional ping pong like game (I forget the name of this type of game, but we have blocks to destroy using the ball, and we can not leave the ball hit the wall behind)

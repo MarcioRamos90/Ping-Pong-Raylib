@@ -1,6 +1,6 @@
 # A simple Ping Pong Game
 
-The intentions here is to practice my c/c++ skills (that are vary low at the moment)
+The intentions here is to practice my c/c++ skills (that are very bad at the moment)
 
 ![](docs/image.png)
 
@@ -17,6 +17,8 @@ If you are using g++, then the command is something like:
 ```
 g++ main.cpp -o .\build\main -lraylib -lgdi32 -lwinmm.
 ```
+
+If you are using other compiler, then you know, something similar with that (remember to look raylib docs if have problem).
 
 ## Roadmap
 

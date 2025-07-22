@@ -1,7 +1,9 @@
 #include <stdlib.h>
+#include "raylib.h"
+#include <cstdio>
 
+#include "math.cpp"
 #include "game.cpp"
-
 
 void DrawBlocks(Block *block)
 {
@@ -11,9 +13,29 @@ void DrawBlocks(Block *block)
 
 void DrawObjects(Ball *ball, Player *player)
 {
-  DrawCircle(ball->x, ball->y, ball->radius, BLACK);
+  DrawCircle(ball->x, ball->y, ball->radius, ball->color);
   // printf("x=%d y=%d w=%d h=%d\n", player->x, player->y, player->width, player->height);
   DrawRectangle(player->x, player->y, player->width, player->height, RED);
+}
+
+void ControlPlayerKeys(Player *player, int playerSpeed)
+{
+  if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A))
+  {
+    player->x -= playerSpeed;
+  }
+  if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D))
+  {
+    player->x += playerSpeed;
+  }
+  if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W))
+  {
+    player->y -= playerSpeed;
+  }
+  if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S))
+  {
+    player->y += playerSpeed;
+  }
 }
 
 int main() {
@@ -24,10 +46,11 @@ int main() {
   BallSpeed* speed = new BallSpeed{};
   Block* blocks = new Block[20];
 
-  bool gameOver = false;
+  GameState *gameState = new GameState{};
+
   int playerSpeed = 6;
   
-  GameInitialization(player, ball, speed, blocks, &gameOver);
+  GameInitialization(player, ball, speed, blocks, gameState);
 
   int framesCounter = 0;
 
@@ -35,20 +58,18 @@ int main() {
 
   while (!WindowShouldClose()) {
     // Updating
-    if (!gameOver){
+    if (!gameState->gameOver){
       moveBall(ball, speed);
-      CheckBallCollisions(ball, speed, player, &gameOver);
-
-      if (IsKeyDown(KEY_LEFT))
-      {
-        player->x -= playerSpeed;
-      }
-      if (IsKeyDown(KEY_RIGHT))
-      {
-        player->x += playerSpeed;
-      }
+      CheckBallCollisions(ball, speed, player, gameState);
+      ControlPlayerKeys(player, playerSpeed);
     } else {
-      if (IsKeyPressed(KEY_SPACE)) GameInitialization(player, ball, speed, blocks, &gameOver); // reinitialize the game if space is typed
+      if (IsKeyPressed(KEY_SPACE)) {
+        if (gameState->gameOver) GameInitialization(player, ball, speed, blocks, gameState); // reinitialize the game if space is typed
+        else
+        {
+          pause = !pause;
+        }
+      } 
     }
 
     framesCounter++;
@@ -63,7 +84,7 @@ int main() {
       DrawBlocks(&blocks[i]);
     }
 
-    if (gameOver)
+    if (gameState->gameOver)
     {
       DrawText(
           TextSubtext("* Game Over *", 0, framesCounter/20), 

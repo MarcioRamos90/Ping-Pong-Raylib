@@ -10,6 +10,7 @@ typedef struct GameState {
   bool gameOver;
   bool paused;
   bool win;
+  bool statingGame;
 } GameState;
 
 typedef struct Ball {

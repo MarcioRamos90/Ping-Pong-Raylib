@@ -1,9 +1,12 @@
 #include <stdlib.h>
-#include "raylib.h"
+#include <raylib.h>
 #include <cstdio>
+#include <cmath>
+#include <random>
 
 #include "math.cpp"
 #include "game.cpp"
+#include "utils.cpp"
 
 void DrawBlocks(Block *block)
 {
@@ -39,39 +42,45 @@ void ControlPlayerKeys(Player *player, int playerSpeed)
 }
 
 int main() {
+  std::random_device rd;  // seed
+  std::mt19937 gen(rd()); // Mersenne Twister RNG
+  std::uniform_int_distribution<> dis(-1, 1);
+
   InitWindow(800, 600, "raylib basic window");
   
   Player* player = new Player{};
   Ball* ball = new Ball{};
-  BallSpeed* speed = new BallSpeed{};
+  BallSpeed* speed = new BallSpeed{dis(gen) * 4, dis(gen) * 4};
   Block* blocks = new Block[20];
 
   GameState *gameState = new GameState{};
 
   int playerSpeed = 6;
   
-  GameInitialization(player, ball, speed, blocks, gameState);
+  GameInitialization(player, ball, blocks, gameState);
 
   int framesCounter = 0;
+  float t = 0;
 
   SetTargetFPS(60);
 
   while (!WindowShouldClose()) {
     // Updating
-    if (!gameState->gameOver){
+    if (!gameState->gameOver && !gameState->paused){
       moveBall(ball, speed);
       CheckBallCollisions(ball, speed, player, gameState);
       ControlPlayerKeys(player, playerSpeed);
     } else {
       if (IsKeyPressed(KEY_SPACE)) {
-        if (gameState->gameOver) GameInitialization(player, ball, speed, blocks, gameState); // reinitialize the game if space is typed
+        if (gameState->gameOver) GameInitialization(player, ball, blocks, gameState); // reinitialize the game if space is typed
         else
         {
-          pause = !pause;
+          gameState->paused = !gameState->paused;
         }
       } 
     }
 
+    t += 0.1;
     framesCounter++;
 
     // Drawing
@@ -86,12 +95,22 @@ int main() {
 
     if (gameState->gameOver)
     {
-      DrawText(
-          TextSubtext("* Game Over *", 0, framesCounter/20), 
-          (GetScreenWidth() / 2), 
-          GetScreenHeight() / 2, 
-          30, 
-          LIGHTGRAY);
+      writeTextInScreenAtCenter("* Game Over *", 30, 2, 0, 0);
+      if (sin(t) > 0) writeTextInScreenAtCenter("Press SPACE to restart", 30, 2, 0, 100);
+
+    }
+
+    if (gameState->statingGame)
+    {
+
+      writeTextInScreenAtCenter("Game Start", 30, 2, 0, 0);
+      if (sin(t) > 0) writeTextInScreenAtCenter("Press SPACE to start", 30, 2, 0, 100);
+      gameState->paused = true;
+
+      if (IsKeyPressed(KEY_SPACE)) {
+        gameState->paused = false;
+        gameState->statingGame = false;
+      }
     }
 
     EndDrawing();

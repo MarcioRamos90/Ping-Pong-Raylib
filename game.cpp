@@ -1,8 +1,5 @@
 #include "game.h"
 
-bool pause = false;
-
-
 void InitializeBlocks(Block blocks[])
 {
   int x = 1;
@@ -24,10 +21,8 @@ void InitializeBlocks(Block blocks[])
 
 void moveBall(Ball* ball, BallSpeed* speed)
 {
-  if (!pause) {
     ball->x += speed->x;
     ball->y += speed->y;
-  }
 }
 
 void CheckBallCollisions(Ball* ball, BallSpeed* speed, Player *player, GameState *gameState)
@@ -56,7 +51,7 @@ void CheckBallCollisions(Ball* ball, BallSpeed* speed, Player *player, GameState
         gameState->gameOver = true;
 }
 
-void GameInitialization(Player *player, Ball* ball, BallSpeed* speed, Block blocks[], GameState * gameState)
+void GameInitialization(Player *player, Ball* ball, Block blocks[], GameState * gameState)
 {
   player->x = GetScreenWidth() / 2;
   player->y = GetScreenHeight() - PLAYER_HEIGHT;
@@ -68,13 +63,10 @@ void GameInitialization(Player *player, Ball* ball, BallSpeed* speed, Block bloc
   ball->radius = 10;
   ball->color = BLUE;
 
-  speed->x = 4;
-  speed->y = 4;
-
   InitializeBlocks(blocks);
 
   gameState->gameOver = false;
   gameState->paused = false;
   gameState->win = false;
-
+  gameState->statingGame = true;
 }

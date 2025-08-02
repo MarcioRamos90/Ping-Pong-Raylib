@@ -4,14 +4,13 @@
 #include <cmath>
 #include <random>
 
-#include "math.cpp"
 #include "game.cpp"
 #include "utils.cpp"
 
 void DrawBlocks(Block *block)
 {
   // printf("x=%d y=%d w=%d h=%d\n", block->x, block->y, block->width, block->height);
-  DrawRectangle(block->x, block->y, block->width, block->height, BLACK);
+  DrawRectangle(block->x, block->y, block->width, block->height,  block->color);
 }
 
 void DrawObjects(Ball *ball, Player *player)
@@ -42,22 +41,21 @@ void ControlPlayerKeys(Player *player, int playerSpeed)
 }
 
 int main() {
-  std::random_device rd;  // seed
-  std::mt19937 gen(rd()); // Mersenne Twister RNG
-  std::uniform_int_distribution<> dis(-1, 1);
+
 
   InitWindow(800, 600, "raylib basic window");
-  
+
   Player* player = new Player{};
   Ball* ball = new Ball{};
-  BallSpeed* speed = new BallSpeed{dis(gen) * 4, dis(gen) * 4};
+  BallSpeed* ballSpeed = new BallSpeed{4, 4};
   Block* blocks = new Block[20];
 
   GameState *gameState = new GameState{};
 
   int playerSpeed = 6;
   
-  GameInitialization(player, ball, blocks, gameState);
+  GameInitialization(player, ball, ballSpeed, gameState);
+  InitializeBlocks(blocks);
 
   int framesCounter = 0;
   float t = 0;
@@ -67,12 +65,16 @@ int main() {
   while (!WindowShouldClose()) {
     // Updating
     if (!gameState->gameOver && !gameState->paused){
-      moveBall(ball, speed);
-      CheckBallCollisions(ball, speed, player, gameState);
+      moveBall(ball, ballSpeed);
+      CheckBallCollisions(ball, ballSpeed, player, gameState);
       ControlPlayerKeys(player, playerSpeed);
+      checkBlocksCollision(blocks, ballSpeed, ball, gameState);
     } else {
       if (IsKeyPressed(KEY_SPACE)) {
-        if (gameState->gameOver) GameInitialization(player, ball, blocks, gameState); // reinitialize the game if space is typed
+        if (gameState->gameOver) {
+          GameInitialization(player, ball, ballSpeed, gameState); // reinitialize the game if space is typed
+          InitializeBlocks(blocks);
+        } 
         else
         {
           gameState->paused = !gameState->paused;
@@ -90,7 +92,9 @@ int main() {
     DrawObjects(ball, player);
     for (int i = 0; i < 20; i++)
     {
-      DrawBlocks(&blocks[i]);
+      if (blocks[i].health > 0) {
+        DrawBlocks(&blocks[i]);
+      }
     }
 
     if (gameState->gameOver)

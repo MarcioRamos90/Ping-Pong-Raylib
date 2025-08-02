@@ -37,9 +37,11 @@ typedef struct Block {
   int y;
   int width;
   int height;
+  int health;
+  Color color;
 } Block;
 
 void InitializeBlocks(Block blocks[]);
-void moveBall(Ball *ball, BallSpeed *speed);
-void CheckBallCollisions(Ball *ball, BallSpeed *speed, Player *player, GameState *gameState);
-void GameInitialization(Player *player, Ball *ball, BallSpeed *speed, Block blocks[], GameState * gameState);
+void moveBall(Ball *ball, BallSpeed *ballSpeed);
+void CheckBallCollisions(Ball *ball, BallSpeed *ballSpeed, Player *player, GameState *gameState);
+void GameInitialization(Player *player, Ball *ball, BallSpeed* ballSpeed, GameState * gameState);

@@ -13,25 +13,54 @@ void InitializeBlocks(Block blocks[])
       y++; 
       x = 1;
     }
-    blocks[i] = Block{x * (BOCK_WIDTH + 15), (y * 30) + 20, BOCK_WIDTH, BOCK_HEIGHT};
+    blocks[i] = Block{
+                    x * (BOCK_WIDTH + 15), 
+                    (y * 30) + 20, 
+                    BOCK_WIDTH, 
+                    BOCK_HEIGHT, 
+                    1, 
+                    YELLOW
+                };
     x++;
   }
   
 }
 
-void moveBall(Ball* ball, BallSpeed* speed)
+void moveBall(Ball* ball, BallSpeed* ballSpeed)
 {
-    ball->x += speed->x;
-    ball->y += speed->y;
+    ball->x += ballSpeed->x;
+    ball->y += ballSpeed->y;
 }
 
-void CheckBallCollisions(Ball* ball, BallSpeed* speed, Player *player, GameState *gameState)
+void checkBlocksCollision(Block blocks[], BallSpeed *ballSpeed, Ball *ball, GameState *gameState)
+{
+
+  for (int x = 0; x < 20; x++) {
+    if (blocks[x].health > 0 &&
+        ball->y - ball->radius >= (blocks[x].y - blocks[x].height)    // top
+        && (ball->y - ball->radius <= blocks[x].y + blocks[x].height) // down
+        && (ball->x + ball->radius >= blocks[x].x)                  // left
+        && (ball->x - ball->radius <= blocks[x].x + blocks[x].width)  // right
+    )
+    {
+      blocks[x].color = RED;
+      blocks[x].health--;
+      ballSpeed->y *= -1;
+    } else {
+      ball->color = BLUE;
+    }
+  }
+  
+  
+}
+
+void CheckBallCollisions(Ball* ball, BallSpeed *ballSpeed, Player *player, GameState *gameState)
 {
       if ((ball->x >= (GetScreenWidth() - ball->radius)) || (ball->x <= ball->radius))
-        speed->x *= -1;
+        ballSpeed->x *= -1;
       if (ball->y <= ball->radius)
       {
-        speed->y *= -1;
+        ballSpeed->y *= -1;
       }
 
       if (
@@ -41,7 +70,7 @@ void CheckBallCollisions(Ball* ball, BallSpeed* speed, Player *player, GameState
         && (ball->x - ball->radius <= player->x + player->width) // right
       )
       {
-        speed->y *= -1;
+        ballSpeed->y *= -1;
         ball->color = GREEN;
       } else {
         ball->color = BLUE;
@@ -51,8 +80,17 @@ void CheckBallCollisions(Ball* ball, BallSpeed* speed, Player *player, GameState
         gameState->gameOver = true;
 }
 
-void GameInitialization(Player *player, Ball* ball, Block blocks[], GameState * gameState)
+void GameInitialization(Player *player, Ball* ball, BallSpeed* ballSpeed, GameState * gameState)
 {
+  std::random_device rd;  // seed
+  std::mt19937 gen(rd()); // Mersenne Twister RNG
+  std::uniform_int_distribution<> dis(0, 1);
+
+  int value = dis(gen) == 0 ? -1 : 1;
+  ballSpeed->x = value;
+  ballSpeed->y = 4;
+  printf("x=%d, y=%d\n", ballSpeed->x, ballSpeed->y);
+
   player->x = GetScreenWidth() / 2;
   player->y = GetScreenHeight() - PLAYER_HEIGHT;
   player->width = PLAYER_WIDTH;
@@ -62,8 +100,6 @@ void GameInitialization(Player *player, Ball* ball, Block blocks[], GameState * 
   ball->y = GetScreenHeight() / 2;
   ball->radius = 10;
   ball->color = BLUE;
-
-  InitializeBlocks(blocks);
 
   gameState->gameOver = false;
   gameState->paused = false;
